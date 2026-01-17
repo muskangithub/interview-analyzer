@@ -13,10 +13,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Recruiterfeedback from "./recruiterfeedback";
 import Interviewerfeedback from "./interviewerfeedback";
+import { sendResumeForAnalysis } from "../lib/sendresumeforanalysis";
 
 const MainPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<
     "interviewee" | "recruiter" | null
   >(null);
@@ -26,13 +28,23 @@ const MainPage = () => {
       alert("Please select a role before uploading the interview.");
       return;
     }
+
     setSelectedFile(file);
     setIsAnalyzing(true);
 
-    // Simulate analysis
-    setTimeout(() => {
+    try {
+      // Call API with file + role
+      const result = await sendResumeForAnalysis(file, selectedRole);
+
+      // result is already a string ✅
+      setAnalysis(result);
+      console.log("AI Analysis:", result);
+    } catch (err) {
+      console.error("Analysis error:", err);
+      setAnalysis("Something went wrong while analyzing your resume.");
+    } finally {
       setIsAnalyzing(false);
-    }, 3000);
+    }
   };
 
   const resetUpload = () => {
@@ -194,9 +206,20 @@ const MainPage = () => {
                               Interview Score
                             </h4>
                             <div className="text-center">
-                              <div className="text-4xl font-bold text-primary mb-2">
-                                82/100
-                              </div>
+                              {analysis ? (
+                                <div className="prose max-w-none">
+                                  <h4 className="font-semibold text-lg mb-2">
+                                    AI Feedback
+                                  </h4>
+                                  <p className="whitespace-pre-line">
+                                    {analysis}
+                                  </p>
+                                </div>
+                              ) : (
+                                <p className="text-muted-foreground">
+                                  No feedback available.
+                                </p>
+                              )}
                               <p className="text-sm text-muted-foreground">
                                 Strong performance with improvement
                                 opportunities

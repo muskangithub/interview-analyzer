@@ -1,6 +1,6 @@
 import { useRef, useState, DragEvent } from "react";
 import { Upload, File, CheckCircle2 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/app/lib/utils";
 
 interface FileDropzoneProps {
   onFileSelected: (file: File) => void;
